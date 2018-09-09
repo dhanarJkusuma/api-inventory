@@ -57,7 +57,6 @@ func (r *dbProductRepository) UpdateProduct(id int64, p models.Product) (*models
 		return nil, models.ERR_PRODUCT_NOT_FOUND
 	}
 	existProduct.Name = p.Name
-	existProduct.SellPrice = p.SellPrice
 	existProduct.Sku = p.Sku
 	existProduct.Total = p.Total
 	existProduct.LastUpdated = time.Now()
@@ -73,7 +72,6 @@ func (r *dbProductRepository) UpdateProductBySKU(sku string, p models.Product) (
 		return nil, models.ERR_PRODUCT_NOT_FOUND
 	}
 	existProduct.Name = p.Name
-	existProduct.SellPrice = p.SellPrice
 	existProduct.Sku = p.Sku
 	existProduct.Total = p.Total
 	existProduct.LastUpdated = time.Now()

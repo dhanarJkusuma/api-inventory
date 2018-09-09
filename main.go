@@ -12,6 +12,8 @@ import (
 	iprRepo "inventory_app/income_product/repository"
 	iprUsecase "inventory_app/income_product/usecase"
 	oucPrHttp "inventory_app/outcome_product/delivery/http"
+	oprRepo "inventory_app/outcome_product/repository"
+	oprUsecase "inventory_app/outcome_product/usecase"
 	prHttp "inventory_app/product/delivery/http"
 	prRepo "inventory_app/product/repository"
 	prUsecase "inventory_app/product/usecase"
@@ -42,18 +44,20 @@ func main() {
 	middlw := middleware.InitMiddleware()
 	e.Use(middlw.CORS)
 
-	// integrating module
-	oucPrHttp.NewOutcomeProductHandler(e)
-
 	// connecting module product
 	pr := prRepo.NewProductRepository(db)
 	pu := prUsecase.NewProductUsecase(pr)
 	prHttp.NewProductHandler(e, pu)
 
 	// connecting module incoming product
-	ipr := iprRepo.NewIncomeProductProduct(db)
+	ipr := iprRepo.NewIncomeProductRepository(db)
 	ipu := iprUsecase.NewIncomeProductUsecase(pr, ipr)
 	incPrHttp.NewIncomeProductHandler(e, ipu)
+
+	// connecting module outcoming product
+	opr := oprRepo.NewOutcomeProductRepository(db)
+	opu := oprUsecase.NewOutcomeProductUsecase(pr, opr)
+	oucPrHttp.NewOutcomeProductHandler(e, opu)
 
 	trxHttp.NewTransactionHandler(e)
 

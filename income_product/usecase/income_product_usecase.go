@@ -7,19 +7,19 @@ import (
 	"time"
 )
 
-type incomeproductUsecase struct {
+type incomeProductUsecase struct {
 	ProductRepo       product.ProductRepository
 	IncomeProductRepo income_product.IncomeProductRepository
 }
 
 func NewIncomeProductUsecase(prRepo product.ProductRepository, incPrRepo income_product.IncomeProductRepository) income_product.IncomeProductUsecase {
-	return &incomeproductUsecase{
+	return &incomeProductUsecase{
 		ProductRepo:       prRepo,
 		IncomeProductRepo: incPrRepo,
 	}
 }
 
-func (u *incomeproductUsecase) CreateNewIncomeProduct(ip *models.IncomingProduct) (*models.IncomingProduct, error) {
+func (u *incomeProductUsecase) CreateNewIncomeProduct(ip *models.IncomingProduct) (*models.IncomingProduct, error) {
 	p, err := u.ProductRepo.GetDetailProductBySKU(ip.ProductSKU)
 	if err != nil {
 		return nil, models.ERR_PRODUCT_NOT_FOUND
@@ -27,6 +27,14 @@ func (u *incomeproductUsecase) CreateNewIncomeProduct(ip *models.IncomingProduct
 	ip.ProductID = p.ID
 	ip.ProductSKU = p.Sku
 	ip.Product = *p
+
+	// check date
+	parsedDate, err := time.Parse("2006-01-02 15:04:05", ip.DateFormatted)
+	if err != nil {
+		return nil, models.ERR_DATE_PARSING
+	}
+	ip.Date = parsedDate
+
 	incomeProduct, err := u.IncomeProductRepo.CreateNewIncomeProduct(ip)
 	if err != nil {
 		return nil, models.ERR_RECORD_DB
@@ -34,10 +42,11 @@ func (u *incomeproductUsecase) CreateNewIncomeProduct(ip *models.IncomingProduct
 	// update stock
 	p.Total += ip.Total
 	u.ProductRepo.UpdateProduct(p.ID, *p)
+	ip.Product = *p
 	return incomeProduct, nil
 }
 
-func (u *incomeproductUsecase) FetchIncomeProduct(from string, page int, size int) ([]models.IncomingProduct, error) {
+func (u *incomeProductUsecase) FetchIncomeProduct(from string, page int, size int) ([]models.IncomingProduct, error) {
 	if from == "" {
 		from = "1980-01-01"
 	}
@@ -52,7 +61,7 @@ func (u *incomeproductUsecase) FetchIncomeProduct(from string, page int, size in
 	return result, nil
 }
 
-func (u *incomeproductUsecase) GetDetailIncomeProduct(id int64) (*models.IncomingProduct, error) {
+func (u *incomeProductUsecase) GetDetailIncomeProduct(id int64) (*models.IncomingProduct, error) {
 	result, err := u.IncomeProductRepo.GetDetailIncomeProduct(id)
 	if err != nil {
 		return nil, err
@@ -60,7 +69,15 @@ func (u *incomeproductUsecase) GetDetailIncomeProduct(id int64) (*models.Incomin
 	return result, nil
 }
 
-func (u *incomeproductUsecase) UpdateIncomeProduct(id int64, ip *models.IncomingProduct) (*models.IncomingProduct, error) {
+func (u *incomeProductUsecase) GetDetailIncomeProductByNoReceipt(no string) (*models.IncomingProduct, error) {
+	result, err := u.IncomeProductRepo.GetDetailIncomeProductByNoReceipt(no)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (u *incomeProductUsecase) UpdateIncomeProduct(id int64, ip *models.IncomingProduct) (*models.IncomingProduct, error) {
 	p, err := u.ProductRepo.GetDetailProductBySKU(ip.ProductSKU)
 	if err != nil {
 		return nil, models.ERR_PRODUCT_NOT_FOUND
@@ -68,6 +85,14 @@ func (u *incomeproductUsecase) UpdateIncomeProduct(id int64, ip *models.Incoming
 	ip.ProductID = p.ID
 	ip.ProductSKU = p.Sku
 	ip.Product = *p
+
+	// check date
+	parsedDate, err := time.Parse("2006-01-02 15:04:05", ip.DateFormatted)
+	if err != nil {
+		return nil, models.ERR_DATE_PARSING
+	}
+	ip.Date = parsedDate
+
 	incomeProduct, oldData, err := u.IncomeProductRepo.UpdateIncomeProduct(id, *ip)
 	if err != nil {
 		return nil, models.ERR_RECORD_DB
@@ -91,7 +116,7 @@ func (u *incomeproductUsecase) UpdateIncomeProduct(id int64, ip *models.Incoming
 	return incomeProduct, nil
 }
 
-func (u *incomeproductUsecase) DeleteIncomeProduct(id int64) error {
+func (u *incomeProductUsecase) DeleteIncomeProduct(id int64) error {
 	oldData, err := u.IncomeProductRepo.GetDetailIncomeProduct(id)
 	if err != nil {
 		return err

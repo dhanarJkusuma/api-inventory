@@ -45,6 +45,10 @@ func (i *IncomeProductHandler) Store(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, &ResponseError{
 				Message: "Internal server error",
 			})
+		case models.ERR_DATE_PARSING:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Error parsing date on attribute dateFormatted, `yyyy/MM/dd HH:mm` required",
+			})
 		}
 	}
 	return c.JSON(http.StatusCreated, record)
@@ -110,6 +114,20 @@ func (i *IncomeProductHandler) GetDetail(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func (i *IncomeProductHandler) GetDetailByNoReceipt(c echo.Context) error {
+	var err error
+
+	noReceipt := c.Param("no")
+	result, err := i.IncProductUC.GetDetailIncomeProductByNoReceipt(noReceipt)
+	if err != nil {
+		// 404
+		return c.JSON(http.StatusNotFound, &ResponseError{
+			Message: err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
 func (i *IncomeProductHandler) Update(c echo.Context) error {
 	var updateForm models.IncomingProduct
 	incProduct := c.Param("id")
@@ -134,6 +152,10 @@ func (i *IncomeProductHandler) Update(c echo.Context) error {
 		case models.ERR_RECORD_NOT_FOUND:
 			return c.JSON(http.StatusNotFound, &ResponseError{
 				Message: err.Error(),
+			})
+		case models.ERR_DATE_PARSING:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Error parsing date on attribute dateFormatted, `yyyy/MM/dd HH:mm` required",
 			})
 		case models.ERR_RECORD_DB:
 			return c.JSON(http.StatusInternalServerError, &ResponseError{
