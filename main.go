@@ -11,6 +11,8 @@ import (
 	incPrHttp "inventory_app/income_product/delivery/http"
 	oucPrHttp "inventory_app/outcome_product/delivery/http"
 	prHttp "inventory_app/product/delivery/http"
+	prRepo "inventory_app/product/repository"
+	prUsecase "inventory_app/product/usecase"
 	trxHttp "inventory_app/transaction/delivery/http"
 )
 
@@ -41,7 +43,12 @@ func main() {
 	// integrating module
 	incPrHttp.NewIncomeProductHandler(e)
 	oucPrHttp.NewOutcomeProductHandler(e)
-	prHttp.NewProductHandler(e)
+
+	// connecting module product
+	pr := prRepo.NewProductRepository(db)
+	pu := prUsecase.NewProductUsecase(pr)
+	prHttp.NewProductHandler(e, pu)
+
 	trxHttp.NewTransactionHandler(e)
 
 	e.Logger.Fatal(e.Start(":8080"))

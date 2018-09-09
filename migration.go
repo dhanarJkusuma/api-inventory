@@ -5,6 +5,7 @@ import (
 	"inventory_app/models"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 func MigrateDatabase(db *gorm.DB) {
