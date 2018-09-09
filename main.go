@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo"
 
 	incPrHttp "inventory_app/income_product/delivery/http"
+	iprRepo "inventory_app/income_product/repository"
+	iprUsecase "inventory_app/income_product/usecase"
 	oucPrHttp "inventory_app/outcome_product/delivery/http"
 	prHttp "inventory_app/product/delivery/http"
 	prRepo "inventory_app/product/repository"
@@ -41,13 +43,17 @@ func main() {
 	e.Use(middlw.CORS)
 
 	// integrating module
-	incPrHttp.NewIncomeProductHandler(e)
 	oucPrHttp.NewOutcomeProductHandler(e)
 
 	// connecting module product
 	pr := prRepo.NewProductRepository(db)
 	pu := prUsecase.NewProductUsecase(pr)
 	prHttp.NewProductHandler(e, pu)
+
+	// connecting module incoming product
+	ipr := iprRepo.NewIncomeProductProduct(db)
+	ipu := iprUsecase.NewIncomeProductUsecase(pr, ipr)
+	incPrHttp.NewIncomeProductHandler(e, ipu)
 
 	trxHttp.NewTransactionHandler(e)
 

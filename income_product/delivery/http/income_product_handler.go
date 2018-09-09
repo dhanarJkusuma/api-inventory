@@ -1,7 +1,10 @@
 package http
 
 import (
+	incomeProductModule "inventory_app/income_product"
+	"inventory_app/models"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -11,6 +14,7 @@ type ResponseError struct {
 }
 
 type IncomeProductHandler struct {
+	IncProductUC incomeProductModule.IncomeProductUsecase
 }
 
 func (i *IncomeProductHandler) Ping(c echo.Context) error {
@@ -22,7 +26,154 @@ func (i *IncomeProductHandler) Ping(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func NewIncomeProductHandler(e *echo.Echo) {
-	handler := &IncomeProductHandler{}
+func (i *IncomeProductHandler) Store(c echo.Context) error {
+	var createForm models.IncomingProduct
+
+	err := c.Bind(&createForm)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	record, err := i.IncProductUC.CreateNewIncomeProduct(&createForm)
+	if err != nil {
+		switch err {
+		case models.ERR_PRODUCT_NOT_FOUND:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "ProductSKU attribute doesn't exist",
+			})
+		case models.ERR_RECORD_DB:
+			return c.JSON(http.StatusInternalServerError, &ResponseError{
+				Message: "Internal server error",
+			})
+		}
+	}
+	return c.JSON(http.StatusCreated, record)
+}
+
+func (i *IncomeProductHandler) Fetch(c echo.Context) error {
+	var page, size string
+	var pg, sz int
+	var err error
+
+	from := c.QueryParam("from")
+	if page = c.QueryParam("page"); page == "" {
+		page = "0"
+	}
+	if size = c.QueryParam("size"); size == "" {
+		size = "15"
+	}
+
+	if pg, err = strconv.Atoi(page); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+
+	if sz, err = strconv.Atoi(size); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+	result, err := i.IncProductUC.FetchIncomeProduct(from, pg, sz)
+	if err != nil {
+		switch err {
+		case models.ERR_DATE_PARSING:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Invalid parameter `from` format, need yyyy-mm-dd date formatted",
+			})
+		case models.ERR_RECORD_DB:
+			return c.JSON(http.StatusInternalServerError, &ResponseError{
+				Message: "Internal server error",
+			})
+		}
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+func (i *IncomeProductHandler) GetDetail(c echo.Context) error {
+	var id int64
+	var err error
+
+	incProduct := c.Param("id")
+	if id, err = strconv.ParseInt(incProduct, 10, 64); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid data type path id",
+		})
+	}
+	result, err := i.IncProductUC.GetDetailIncomeProduct(id)
+	if err != nil {
+		// 404
+		return c.JSON(http.StatusNotFound, &ResponseError{
+			Message: err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+func (i *IncomeProductHandler) Update(c echo.Context) error {
+	var updateForm models.IncomingProduct
+	incProduct := c.Param("id")
+	id, err := strconv.ParseInt(incProduct, 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid data type path id",
+		})
+	}
+	err = c.Bind(&updateForm)
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	result, err := i.IncProductUC.UpdateIncomeProduct(id, &updateForm)
+	if err != nil {
+		switch err {
+		case models.ERR_PRODUCT_NOT_FOUND:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "ProductSKU attribute doesn't exist",
+			})
+		case models.ERR_RECORD_NOT_FOUND:
+			return c.JSON(http.StatusNotFound, &ResponseError{
+				Message: err.Error(),
+			})
+		case models.ERR_RECORD_DB:
+			return c.JSON(http.StatusInternalServerError, &ResponseError{
+				Message: "Internal server error",
+			})
+		}
+	}
+	return c.JSON(http.StatusOK, result)
+}
+
+func (i *IncomeProductHandler) Delete(c echo.Context) error {
+	incProduct := c.Param("id")
+	id, err := strconv.ParseInt(incProduct, 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid data type path id",
+		})
+	}
+	err = i.IncProductUC.DeleteIncomeProduct(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, &ResponseError{
+			Message: err.Error(),
+		})
+	}
+	msg := struct {
+		Message string
+	}{
+		Message: "Record has been deleted",
+	}
+	return c.JSON(http.StatusOK, msg)
+}
+
+func NewIncomeProductHandler(e *echo.Echo, uip incomeProductModule.IncomeProductUsecase) {
+	handler := &IncomeProductHandler{
+		IncProductUC: uip,
+	}
 	e.GET("/income-product/ping", handler.Ping)
+	e.POST("/income-product", handler.Store)
+	e.GET("/income-product", handler.Fetch)
+	e.GET("/income-product/:id", handler.GetDetail)
+	e.PUT("/income-product/:id", handler.Update)
+	e.DELETE("/income-product/:id", handler.Delete)
 }
