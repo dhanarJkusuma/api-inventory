@@ -8,6 +8,7 @@ import (
 	productModule "inventory_app/product"
 
 	"github.com/labstack/echo"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type ResponseError struct {
@@ -32,6 +33,11 @@ func (p *ProductHandler) Store(c echo.Context) error {
 	err := c.Bind(&product)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+	if ok, err := isRequestValid(&product); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
 	}
 	insertedProduct, err := p.ProductUC.CreateNewProduct(&product)
 	if err != nil {
@@ -127,6 +133,11 @@ func (p *ProductHandler) Update(c echo.Context) error {
 			Message: "Invalid data type path id",
 		})
 	}
+	if ok, err := isRequestValid(&updateForm); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
+	}
 
 	err = c.Bind(&updateForm)
 	if err != nil {
@@ -215,6 +226,16 @@ func (p *ProductHandler) DeleteBySKU(c echo.Context) error {
 		Message: "Product has been deleted",
 	}
 	return c.JSON(http.StatusOK, msg)
+}
+
+func isRequestValid(m *models.Product) (bool, error) {
+	validate := validator.New()
+
+	err := validate.Struct(m)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func NewProductHandler(e *echo.Echo, up productModule.ProductUsecase) {

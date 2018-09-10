@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type ResponseError struct {
@@ -36,7 +37,11 @@ func (i *IncomeProductHandler) Store(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
-
+	if ok, err := isRequestValid(&createForm); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
+	}
 	record, err := i.IncProductUC.CreateNewIncomeProduct(&createForm)
 	if err != nil {
 		switch err {
@@ -143,6 +148,12 @@ func (i *IncomeProductHandler) Update(c echo.Context) error {
 	err = c.Bind(&updateForm)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if ok, err := isRequestValid(&updateForm); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
 	}
 
 	result, err := i.IncProductUC.UpdateIncomeProduct(id, &updateForm)
@@ -287,6 +298,16 @@ func (i *IncomeProductHandler) ExportSummaryProductValue(c echo.Context) error {
 	wr.Flush()
 
 	return c.Attachment(f.Name(), "laporan_nilai_barang.csv")
+}
+
+func isRequestValid(m *models.IncomingProduct) (bool, error) {
+	validate := validator.New()
+
+	err := validate.Struct(m)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func NewIncomeProductHandler(e *echo.Echo, uip incomeProductModule.IncomeProductUsecase) {

@@ -11,6 +11,7 @@ import (
 	outcomeProductModule "inventory_app/outcome_product"
 
 	"github.com/labstack/echo"
+	validator "gopkg.in/go-playground/validator.v9"
 )
 
 type ResponseError struct {
@@ -27,6 +28,12 @@ func (o *OutcomeProductHandler) Store(c echo.Context) error {
 	err := c.Bind(&createForm)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if ok, err := isRequestValid(&createForm); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
 	}
 
 	record, err := o.OutProductUC.CreateNewOutcomeProduct(&createForm)
@@ -121,6 +128,12 @@ func (o *OutcomeProductHandler) Update(c echo.Context) error {
 	err = c.Bind(&updateForm)
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if ok, err := isRequestValid(&updateForm); !ok {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: err.Error(),
+		})
 	}
 
 	result, err := o.OutProductUC.UpdateOutcomeProduct(id, &updateForm)
@@ -273,6 +286,16 @@ func (o *OutcomeProductHandler) Ping(c echo.Context) error {
 		Message: "Hello From Outcome Product",
 	}
 	return c.JSON(http.StatusOK, response)
+}
+
+func isRequestValid(m *models.OutcomingProduct) (bool, error) {
+	validate := validator.New()
+
+	err := validate.Struct(m)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func NewOutcomeProductHandler(e *echo.Echo, uop outcomeProductModule.OutcomeProductUsecase) {

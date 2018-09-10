@@ -7,8 +7,8 @@ import (
 
 type Product struct {
 	ID          int64     `gorm:"PRIMARY_KEY;AUTO_INCREMENT" json:"id"`
-	Sku         string    `gorm:"size:255;unique;not null" json:"sku"`
-	Name        string    `gorm:"size:100" json:"name"`
+	Sku         string    `gorm:"size:255;unique;not null" json:"sku" validate:"required"`
+	Name        string    `gorm:"size:100" json:"name" validate:"required"`
 	Total       int64     `json:"total"`
 	LastUpdated time.Time `json:"lastUpdated"`
 }
