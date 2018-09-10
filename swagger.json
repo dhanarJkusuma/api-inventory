@@ -1,1183 +1,626 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Inventory Open API",
-      "description": "API Documentation for Inventory API",
-      "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Inventory Open API",
+    "description": "API Documentation for Inventory API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Server for production"
     },
-    "servers": [
-      {
-        "url": "http://localhost:8080",
-        "description": "Server for production"
+    {
+      "url": "http://localhost:8080",
+      "description": "Server for development"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Product",
+      "description": "Api for Management Product"
+    },
+    {
+      "name": "Incoming Product",
+      "description": "Api for Management Incoming Product"
+    },
+    {
+      "name": "Outcoming Product",
+      "description": "Api for Management Outcoming Product"
+    }
+  ],
+  "paths": {
+    "/product": {
+      "post": {
+        "summary": "API for create new product.",
+        "tags": [
+          "Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
       },
-      {
-        "url": "http://localhost:8080",
-        "description": "Server for development"
+      "get": {
+        "summary": "API for get list data of products.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Attribute `page` for pagination, start with 0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Attribute `size` for pagination, default is 15",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
       }
-    ],
-    "tags": [
-      {
-        "name": "Product",
-        "description": "Api for Management Product"
-      },
-      {
-        "name": "Incoming Product",
-        "description": "Api for Management Incoming Product"
-      },
-      {
-        "name": "Outcoming Product",
-        "description": "Api for Management Outcoming Product"
+    },
+    "/product/migration": {
+      "post": {
+        "summary": "API for migrating new product.",
+        "tags": [
+          "Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "example": "SSI-D00791015-LL-BWH,\"Zalekia Plain Casual Blouse (L,Broken White)\",154"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
       }
-    ],
-    "paths": {
-      "/product": {
-        "post": {
-          "summary": "API for create new product.",
-          "tags": [
-            "Product"
-          ],
-          "requestBody": {
+    },
+    "/product/{productId}": {
+      "put": {
+        "summary": "API for update product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "schema": {
+              "type": "integer"
+            },
             "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "create successful",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Product"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
+            "description": "Numeric ID of the product to get"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
               }
             }
           }
         },
-        "get": {
-          "summary": "API for get list data of products.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "name": "page",
-              "in": "query",
-              "description": "Attribute `page` for pagination, start with 0",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "size",
-              "in": "query",
-              "description": "Attribute `size` for pagination, default is 15",
-              "required": false,
-              "schema": {
-                "type": "string"
+        "responses": {
+          "200": {
+            "description": "update successfull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
               }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "list of products",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Product"
-                    }
-                  }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
                 }
               }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
           }
         }
       },
-      "/product/{productId}": {
-        "put": {
-          "summary": "API for update product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Numeric ID of the product to get"
-            }
-          ],
-          "requestBody": {
+      "get": {
+        "summary": "API for get detail data of product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "schema": {
+              "type": "integer"
+            },
             "required": true,
+            "description": "Numeric ID of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of product",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductRequest"
+                  "$ref": "#/components/schemas/Product"
                 }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "update successfull",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Product"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
-          }
-        },
-        "get": {
-          "summary": "API for get detail data of product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Numeric ID of the user to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of product",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Product"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "summary": "API for get detail data of product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Numeric ID of the user to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "delete data successfull",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
           }
         }
       },
-      "/product/sku/{productSku}": {
-        "put": {
-          "summary": "API for update product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productSku",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute productSku of the product to get"
-            }
-          ],
-          "requestBody": {
+      "delete": {
+        "summary": "API for get detail data of product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productId",
+            "schema": {
+              "type": "integer"
+            },
             "required": true,
+            "description": "Numeric ID of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "delete data successfull",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductRequest"
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
           },
-          "responses": {
-            "200": {
-              "description": "update successfull",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Product"
-                  }
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
           }
-        },
-        "get": {
-          "summary": "API for get detail data of product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productSku",
+        }
+      }
+    },
+    "/product/sku/{productSku}": {
+      "put": {
+        "summary": "API for update product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productSku",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Attribute productSku of the product to get"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
               "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute productSku of the product to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of product",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Product"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
+                "$ref": "#/components/schemas/ProductRequest"
               }
             }
           }
         },
-        "delete": {
-          "summary": "API for get detail data of product.",
-          "tags": [
-            "Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "productSku",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute productSku of the product to get"
+        "responses": {
+          "200": {
+            "description": "update successfull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
             }
-          ],
-          "responses": {
-            "200": {
-              "description": "delete data successfull",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
                 }
               }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
                 }
               }
             }
           }
         }
       },
-      "/income-product": {
-        "post": {
-          "summary": "API for create new record of incoming product",
-          "tags": [
-            "Incoming Product"
-          ],
-          "requestBody": {
+      "get": {
+        "summary": "API for get detail data of product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productSku",
+            "schema": {
+              "type": "integer"
+            },
             "required": true,
+            "description": "Attribute productSku of the product to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of product",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IncomingProductRequest"
+                  "$ref": "#/components/schemas/Product"
                 }
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "create successful",
-              "content": {
-                "application/json": {
-                  "schema": {
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "API for get detail data of product.",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "productSku",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Attribute productSku of the product to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "delete data successfull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/income-product": {
+      "post": {
+        "summary": "API for create new record of incoming product",
+        "tags": [
+          "Incoming Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IncomingProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomingProduct"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "API for get list of record incoming product.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Attribute `page` for pagination, start with 0",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Attribute `size` for pagination, default is 15",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Attribute `from` for filter date from, default is `1980-01-01`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "list of outcoming product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
                     "$ref": "#/components/schemas/IncomingProduct"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "get": {
-          "summary": "API for get list of record incoming product.",
-          "tags": [
-            "Incoming Product"
-          ],
-          "parameters": [
-            {
-              "name": "page",
-              "in": "query",
-              "description": "Attribute `page` for pagination, start with 0",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "size",
-              "in": "query",
-              "description": "Attribute `size` for pagination, default is 15",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "from",
-              "in": "query",
-              "description": "Attribute `from` for filter date from, default is `1980-01-01`",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "list of outcoming product",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/IncomingProduct"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/income-product/{recordId}": {
-        "put": {
-          "summary": "API for updating record of incoming product",
-          "tags": [
-            "Incoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the incoming product record to get"
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IncomingProductRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "update successful",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/IncomingProduct"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "get": {
-          "summary": "API for get list of incoming product record.",
-          "tags": [
-            "Incoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the incoming product record to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of incoming product record",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/IncomingProduct"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "summary": "API for deleting incoming product record.",
-          "tags": [
-            "Incoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the incoming product record to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of incoming product record",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/income-product/product-value": {
-        "get": {
-          "summary": "API for get list of product value items.",
-          "tags": [
-            "Incoming Product"
-          ],
-          "responses": {
-            "200": {
-              "description": "list of product value items",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/ProductValue"
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/income-product/product-value/export": {
-        "get": {
-          "summary": "API for get exported csv file of product value items.",
-          "tags": [
-            "Incoming Product"
-          ],
-          "responses": {
-            "200": {
-              "description": "file export downloaded",
-              "content": {
-                "text/csv": {
-                  "schema": {
-                    "type": "string",
-                    "example": "SKU,Nama Item,Jumlah,Rata-Rata Harga Beli,Total"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/outcome-product": {
-        "post": {
-          "summary": "API for create new record of outcoming product",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutcomingProductRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "create successful",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/OutcomingProduct"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "get": {
-          "summary": "API for get list of record outcoming product.",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "parameters": [
-            {
-              "name": "page",
-              "in": "query",
-              "description": "Attribute `page` for pagination, start with 0",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "size",
-              "in": "query",
-              "description": "Attribute `size` for pagination, default is 15",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "from",
-              "in": "query",
-              "description": "Attribute `from` for filter date from, default is `1980-01-01`",
-              "required": false,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "list of outcoming product",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/OutcomingProduct"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/outcome-product/{recordId}": {
-        "put": {
-          "summary": "API for updating record of outcoming product",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the outcoming product record to get"
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OutcomingProductRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "update successful",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/OutcomingProduct"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "invalid request",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BadRequestResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "get": {
-          "summary": "API for get list of outcoming product record.",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the outcoming product record to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of outcoming product record",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/OutcomingProduct"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "delete": {
-          "summary": "API for deleting outcoming product record.",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "recordId",
-              "schema": {
-                "type": "integer"
-              },
-              "required": true,
-              "description": "Attribute Id of the outcoming product record to get"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "detail of outcoming product record",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/outcome-product/sales": {
-        "get": {
-          "summary": "API for get list of report sales.",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "responses": {
-            "200": {
-              "description": "list of report sales",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Sales"
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/outcome-product/sales/export": {
-        "get": {
-          "summary": "API for get exported csv file of report sales.",
-          "tags": [
-            "Outcoming Product"
-          ],
-          "responses": {
-            "200": {
-              "description": "file export downloaded",
-              "content": {
-                "text/csv": {
-                  "schema": {
-                    "type": "string",
-                    "example": "ID Pesanan,Waktu,SKU,Nama Barang,Jumlah,Harga Jual,Total,Harga Beli,Laba"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "data not found",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "internal server error",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/MessageResponse"
                   }
                 }
               }
@@ -1186,312 +629,1039 @@
         }
       }
     },
-    "components": {
-      "schemas": {
-        "ProductRequest": {
-          "type": "object",
-          "required": [
-            "sku",
-            "name",
-            "total"
-          ],
-          "properties": {
-            "sku": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "total": {
-              "description": "quantity of item",
-              "type": "number",
-              "format": "int64"
+    "/income-product/migration": {
+      "post": {
+        "summary": "API for migrating new incoming product record.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "example": "2018-01-02 11:20:00,SSI-D01401071-LL-RED,\"Zeomila Zipper Casual Blouse (L,Red)\",62,47,74000,4588000,20180102-69539,2018/01/06 terima 47; Masih Menunggu"
+              }
             }
           }
         },
-        "Product": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "number",
-              "format": "int64"
+        "responses": {
+          "200": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/income-product/{recordId}": {
+      "put": {
+        "summary": "API for updating record of incoming product",
+        "tags": [
+          "Incoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
             },
-            "sku": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "quantity of item"
+            "required": true,
+            "description": "Attribute Id of the incoming product record to get"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IncomingProductRequest"
+              }
             }
           }
         },
-        "IncomingProductRequest": {
-          "type": "object",
-          "required": [
-            "productSKU",
-            "totalOrder",
-            "total",
-            "buyPrice",
-            "dateFormatted"
-          ],
-          "properties": {
-            "productSKU": {
-              "type": "string"
+        "responses": {
+          "201": {
+            "description": "update successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomingProduct"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "API for get list of incoming product record.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
             },
-            "totalOrder": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of ordered item"
+            "required": true,
+            "description": "Attribute Id of the incoming product record to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of incoming product record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncomingProduct"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "API for deleting incoming product record.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
             },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of actual stock received item"
-            },
-            "note": {
-              "type": "string"
-            },
-            "buyPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "noReceipt": {
-              "type": "string"
-            },
-            "dateFormatted": {
-              "type": "string",
-              "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' formatted"
+            "required": true,
+            "description": "Attribute Id of the incoming product record to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of incoming product record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/income-product/product-value": {
+      "get": {
+        "summary": "API for get list of product value items.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "responses": {
+          "200": {
+            "description": "list of product value items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductValue"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/income-product/product-value/export": {
+      "get": {
+        "summary": "API for get exported csv file of product value items.",
+        "tags": [
+          "Incoming Product"
+        ],
+        "responses": {
+          "200": {
+            "description": "file export downloaded",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "example": "SKU,Nama Item,Jumlah,Rata-Rata Harga Beli,Total"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcome-product": {
+      "post": {
+        "summary": "API for create new record of outcoming product",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomingProductRequest"
+              }
             }
           }
         },
-        "IncomingProduct": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "number",
-              "format": "int64"
-            },
-            "product": {
-              "$ref": "#/components/schemas/Product"
-            },
-            "productId": {
-              "type": "number",
-              "format": "int64"
-            },
-            "productSKU": {
-              "type": "string"
-            },
-            "totalOrder": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of ordered item"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of actual stock received item"
-            },
-            "note": {
-              "type": "string"
-            },
-            "buyPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "totalAmount": {
-              "type": "number",
-              "format": "float64",
-              "description": "Total amount of specific item"
-            },
-            "noReceipt": {
-              "type": "string"
-            },
-            "dateFormatted": {
-              "type": "string",
-              "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' format"
-            },
-            "date": {
-              "type": "string",
-              "description": "Date of incoming product within zonedDateTime formatted"
-            },
-            "lastUpdated": {
-              "type": "string",
-              "description": "Date of last updated within zonedDateTime formatted"
-            },
-            "insertedAt": {
-              "type": "string",
-              "description": "Date of inserted time within zonedDateTime formatted"
+        "responses": {
+          "201": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomingProduct"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
             }
           }
-        },
-        "ProductValue": {
-          "type": "object",
-          "properties": {
-            "productId": {
-              "type": "number",
-              "format": "int64"
-            },
-            "productSKU": {
+        }
+      },
+      "get": {
+        "summary": "API for get list of record outcoming product.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Attribute `page` for pagination, start with 0",
+            "required": false,
+            "schema": {
               "type": "string"
-            },
-            "productName": {
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Attribute `size` for pagination, default is 15",
+            "required": false,
+            "schema": {
               "type": "string"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of actual stock item"
-            },
-            "totalBuyPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "avgBuyPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "totalAmount": {
-              "type": "number",
-              "format": "float64"
-            },
-            "date": {
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Attribute `from` for filter date from, default is `1980-01-01`",
+            "required": false,
+            "schema": {
               "type": "string"
             }
           }
-        },
-        "OutcomingProductRequest": {
-          "type": "object",
-          "required": [
-            "productSKU",
-            "sellPrice",
-            "total",
-            "dateFormatted"
-          ],
-          "properties": {
-            "productSKU": {
-              "type": "string"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of outcoming product in specific record"
-            },
-            "sellPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "note": {
-              "type": "string"
-            },
-            "dateFormatted": {
-              "type": "string",
-              "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' format"
+        ],
+        "responses": {
+          "200": {
+            "description": "list of outcoming product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OutcomingProduct"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcome-product/migration": {
+      "post": {
+        "summary": "API for migrating new outcoming product record.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/csv": {
+              "schema": {
+                "example": "2018-01-09 2:38:36,SSI-D01401050-MM-RED,\"Zeomila Zipper Casual Blouse (M,Red)\",1,115000,115000,Pesanan ID-20180109-853724"
+              }
             }
           }
         },
-        "OutcomingProduct": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "number",
-              "format": "int64"
+        "responses": {
+          "200": {
+            "description": "create successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcome-product/{recordId}": {
+      "put": {
+        "summary": "API for updating record of outcoming product",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
             },
-            "product": {
-              "$ref": "#/components/schemas/Product"
-            },
-            "productSKU": {
-              "type": "string"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64",
-              "description": "Total quantity of outcoming product in specific record"
-            },
-            "sellPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "totalAmount": {
-              "type": "number",
-              "format": "float64"
-            },
-            "note": {
-              "type": "string"
-            },
-            "dateFormatted": {
-              "type": "string"
-            },
-            "date": {
-              "type": "string"
-            },
-            "lastUpdated": {
-              "type": "string"
-            },
-            "insertedAt": {
-              "type": "string"
-            },
-            "orderId": {
-              "type": "string"
+            "required": true,
+            "description": "Attribute Id of the outcoming product record to get"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomingProductRequest"
+              }
             }
           }
         },
-        "Sales": {
-          "type": "object",
-          "properties": {
-            "orderId": {
-              "type": "string"
-            },
-            "date": {
-              "type": "string"
-            },
-            "productSKU": {
-              "type": "string"
-            },
-            "productName": {
-              "type": "string"
-            },
-            "total": {
-              "type": "number",
-              "format": "int64"
-            },
-            "sellPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "totalAmount": {
-              "type": "number",
-              "format": "float64"
-            },
-            "buyPrice": {
-              "type": "number",
-              "format": "float64"
-            },
-            "profit": {
-              "type": "number",
-              "format": "float64"
+        "responses": {
+          "201": {
+            "description": "update successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomingProduct"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
             }
           }
-        },
-        "MessageResponse": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string"
+        }
+      },
+      "get": {
+        "summary": "API for get list of outcoming product record.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Attribute Id of the outcoming product record to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of outcoming product record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomingProduct"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
             }
           }
-        },
-        "BadRequestResponse": {
-          "type": "object",
-          "properties": {
-            "message": {
-              "type": "string"
+        }
+      },
+      "delete": {
+        "summary": "API for deleting outcoming product record.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "recordId",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "Attribute Id of the outcoming product record to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of outcoming product record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcome-product/sales": {
+      "get": {
+        "summary": "API for get list of report sales.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "responses": {
+          "200": {
+            "description": "list of report sales",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalesSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/outcome-product/sales/export": {
+      "get": {
+        "summary": "API for get exported csv file of report sales.",
+        "tags": [
+          "Outcoming Product"
+        ],
+        "responses": {
+          "200": {
+            "description": "file export downloaded",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string",
+                  "example": "ID Pesanan,Waktu,SKU,Nama Barang,Jumlah,Harga Jual,Total,Harga Beli,Laba"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "data not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
             }
           }
         }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "ProductRequest": {
+        "type": "object",
+        "required": [
+          "sku",
+          "name",
+          "total"
+        ],
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "total": {
+            "description": "quantity of item",
+            "type": "number",
+            "format": "int64"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "int64"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "quantity of item"
+          }
+        }
+      },
+      "IncomingProductRequest": {
+        "type": "object",
+        "required": [
+          "productSKU",
+          "totalOrder",
+          "total",
+          "buyPrice",
+          "dateFormatted"
+        ],
+        "properties": {
+          "productSKU": {
+            "type": "string"
+          },
+          "totalOrder": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of ordered item"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of actual stock received item"
+          },
+          "note": {
+            "type": "string"
+          },
+          "buyPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "noReceipt": {
+            "type": "string"
+          },
+          "dateFormatted": {
+            "type": "string",
+            "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' formatted"
+          }
+        }
+      },
+      "IncomingProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "int64"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "productId": {
+            "type": "number",
+            "format": "int64"
+          },
+          "productSKU": {
+            "type": "string"
+          },
+          "totalOrder": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of ordered item"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of actual stock received item"
+          },
+          "note": {
+            "type": "string"
+          },
+          "buyPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float64",
+            "description": "Total amount of specific item"
+          },
+          "noReceipt": {
+            "type": "string"
+          },
+          "dateFormatted": {
+            "type": "string",
+            "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' format"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date of incoming product within zonedDateTime formatted"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Date of last updated within zonedDateTime formatted"
+          },
+          "insertedAt": {
+            "type": "string",
+            "description": "Date of inserted time within zonedDateTime formatted"
+          }
+        }
+      },
+      "ProductValue": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "number",
+            "format": "int64"
+          },
+          "productSKU": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of actual stock item"
+          },
+          "totalBuyPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "avgBuyPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float64"
+          },
+          "date": {
+            "type": "string"
+          }
+        }
+      },
+      "OutcomingProductRequest": {
+        "type": "object",
+        "required": [
+          "productSKU",
+          "sellPrice",
+          "total",
+          "dateFormatted"
+        ],
+        "properties": {
+          "productSKU": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of outcoming product in specific record"
+          },
+          "sellPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "note": {
+            "type": "string"
+          },
+          "dateFormatted": {
+            "type": "string",
+            "description": "Date of incoming product within 'yyyy-MM-dd HH:mm:ss' format"
+          }
+        }
+      },
+      "OutcomingProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "int64"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "productSKU": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64",
+            "description": "Total quantity of outcoming product in specific record"
+          },
+          "sellPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float64"
+          },
+          "note": {
+            "type": "string"
+          },
+          "dateFormatted": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "lastUpdated": {
+            "type": "string"
+          },
+          "insertedAt": {
+            "type": "string"
+          },
+          "orderId": {
+            "type": "string"
+          }
+        }
+      },
+      "Sales": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "productSKU": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "total": {
+            "type": "number",
+            "format": "int64"
+          },
+          "sellPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "totalAmount": {
+            "type": "number",
+            "format": "float64"
+          },
+          "buyPrice": {
+            "type": "number",
+            "format": "float64"
+          },
+          "profit": {
+            "type": "number",
+            "format": "float64"
+          }
+        }
+      },
+      "SalesSummary": {
+        "type": "object",
+        "properties": {
+          "omzet": {
+            "type": "number",
+            "format": "float64"
+          },
+          "grossProfit": {
+            "type": "number",
+            "format": "float64"
+          },
+          "totalItemSold": {
+            "type": "number",
+            "format": "int64"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Sales"
+            }
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "BadRequestResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
   }
+}

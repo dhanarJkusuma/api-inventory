@@ -88,7 +88,39 @@ paths:
               application/json:
                 schema :
                   $ref: '#/components/schemas/MessageResponse'
-                  
+  
+  "/product/migration":
+     post:
+      summary: API for migrating new product.
+      tags: ["Product"]
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              example: SSI-D00791015-LL-BWH,"Zalekia Plain Casual Blouse (L,Broken White)",154
+              
+      responses:
+        '200':
+          description: create successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: invalid request
+          content:
+            application/json:
+              schema :
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+            description: internal server error
+            content:
+              application/json:
+                schema :
+                  $ref: '#/components/schemas/MessageResponse'
+    
+  
   "/product/{productId}":
      put:
       summary: API for update product.
@@ -354,6 +386,37 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/IncomingProduct'
+                  
+  "/income-product/migration":
+     post:
+      summary: API for migrating new incoming product record.
+      tags: ["Incoming Product"]
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              example: 2018-01-02 11:20:00,SSI-D01401071-LL-RED,"Zeomila Zipper Casual Blouse (L,Red)",62,47,74000,4588000,20180102-69539,2018/01/06 terima 47; Masih Menunggu
+              
+      responses:
+        '200':
+          description: create successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: invalid request
+          content:
+            application/json:
+              schema :
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+            description: internal server error
+            content:
+              application/json:
+                schema :
+                  $ref: '#/components/schemas/MessageResponse'
  
  
   "/income-product/{recordId}":
@@ -574,6 +637,37 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OutcomingProduct'
+  
+  "/outcome-product/migration":
+     post:
+      summary: API for migrating new outcoming product record.
+      tags: ["Outcoming Product"]
+      requestBody:
+        required: true
+        content:
+          text/csv:
+            schema:
+              example: 2018-01-09 2:38:36,SSI-D01401050-MM-RED,"Zeomila Zipper Casual Blouse (M,Red)",1,115000,115000,Pesanan ID-20180109-853724
+              
+      responses:
+        '200':
+          description: create successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: invalid request
+          content:
+            application/json:
+              schema :
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+            description: internal server error
+            content:
+              application/json:
+                schema :
+                  $ref: '#/components/schemas/MessageResponse'
                   
   "/outcome-product/{recordId}":
     put:
@@ -688,9 +782,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Sales'
+                $ref: '#/components/schemas/SalesSummary'
         '404':
             description: data not found
             content:
@@ -949,6 +1041,23 @@ components:
         profit:
           type: number
           format: float64
+    
+    SalesSummary:
+      type: object
+      properties:
+        omzet:
+          type: number
+          format: float64
+        grossProfit:
+          type: number
+          format: float64
+        totalItemSold:
+          type: number
+          format: int64
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sales'
           
     MessageResponse:
       type: object
