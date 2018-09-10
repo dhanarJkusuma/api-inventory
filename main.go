@@ -28,13 +28,14 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Connecting to the DB")
+	fmt.Println("[Inventory App] Try connecting to the Database")
 	// connect db
 	db, err := gorm.Open("sqlite3", "./db/app.db")
 	if err != nil {
-		panic("failed to connect database")
+		panic("[Inventory App] Failed to connect Database")
 	}
 	defer db.Close()
+	fmt.Println("[Inventory App] Connected to the Database")
 
 	// migration
 	MigrateDatabase(db)
@@ -64,6 +65,7 @@ func main() {
 
 	trxHttp.NewTransactionHandler(e)
 
+	fmt.Println("[Inventory App] Application Starting")
 	e.Logger.Fatal(e.Start(":8080"))
 
 }

@@ -132,11 +132,11 @@ func (ou *outcomeProductUsecase) GetSalesReport(startDate string, endDate string
 	if endDate == "" {
 		endDate = helper.GetCurrentDateWithFormat("2006-01-02")
 	}
-	err := helper.IsCorrectFormat("2006-01-02", startDate)
+	err := helper.IsCorrectDateFormat("2006-01-02", startDate)
 	if err != nil {
 		return nil, err
 	}
-	err = helper.IsCorrectFormat("2006-01-02", endDate)
+	err = helper.IsCorrectDateFormat("2006-01-02", endDate)
 	if err != nil {
 		return nil, err
 	}

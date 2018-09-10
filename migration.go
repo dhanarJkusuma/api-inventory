@@ -9,7 +9,7 @@ import (
 )
 
 func MigrateDatabase(db *gorm.DB) {
-	fmt.Println("Migrating Database... ")
+	fmt.Println("[Inventory App] Auto Migration Database")
 	db.AutoMigrate(
 		&models.Product{},
 		&models.IncomingProduct{},
