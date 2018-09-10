@@ -17,3 +17,7 @@ func IsCorrectFormat(format string, date string) error {
 	}
 	return nil
 }
+
+func TimeToStringFormat(dt time.Time, pattern string) string {
+	return dt.Format(pattern)
+}

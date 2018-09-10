@@ -1,8 +1,11 @@
 package http
 
 import (
+	"encoding/csv"
+	"inventory_app/helper"
 	incomeProductModule "inventory_app/income_product"
 	"inventory_app/models"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -229,6 +232,63 @@ func (i *IncomeProductHandler) GetSummaryProductValue(c echo.Context) error {
 	return c.JSON(http.StatusOK, results)
 }
 
+func (i *IncomeProductHandler) ExportSummaryProductValue(c echo.Context) error {
+	var page, size string
+	var pg, sz int
+	var err error
+
+	from := c.QueryParam("from")
+	if page = c.QueryParam("page"); page == "" {
+		page = "0"
+	}
+	if size = c.QueryParam("size"); size == "" {
+		size = "15"
+	}
+
+	if pg, err = strconv.Atoi(page); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+
+	if sz, err = strconv.Atoi(size); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+
+	results, err := i.IncProductUC.GetSummaryProductValue(from, pg, sz)
+	if err != nil {
+		switch err {
+		case models.ERR_DATE_PARSING:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Error parsing date on attribute dateFormatted, `yyyy/MM/dd HH:mm` required",
+			})
+		case models.ERR_RECORD_DB:
+			return c.JSON(http.StatusInternalServerError, &ResponseError{
+				Message: "Internal server error",
+			})
+		}
+	}
+
+	f, err := ioutil.TempFile("/tmp", "tmp")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, &ResponseError{
+			Message: "Internal server error",
+		})
+	}
+	wr := csv.NewWriter(f)
+
+	// writing header
+	wr.Write([]string{"SKU", "Nama Item", "Jumlah", "Rata-Rata Harga Beli", "Total"})
+	for _, val := range results {
+		wr.Write([]string{val.ProductSKU, val.ProductName, helper.IntToString(val.Total), helper.FloatToString(val.AvgBuyPrice), helper.FloatToString(val.TotalAmount)})
+	}
+	wr.Flush()
+
+	return c.Attachment(f.Name(), "laporan_nilai_barang.csv")
+}
+
 func NewIncomeProductHandler(e *echo.Echo, uip incomeProductModule.IncomeProductUsecase) {
 	handler := &IncomeProductHandler{
 		IncProductUC: uip,
@@ -240,4 +300,5 @@ func NewIncomeProductHandler(e *echo.Echo, uip incomeProductModule.IncomeProduct
 	e.PUT("/income-product/:id", handler.Update)
 	e.DELETE("/income-product/:id", handler.Delete)
 	e.GET("/income-product/product-value", handler.GetSummaryProductValue)
+	e.GET("/income-product/product-value/export", handler.ExportSummaryProductValue)
 }
