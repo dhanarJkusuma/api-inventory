@@ -7,6 +7,7 @@ import (
 	"inventory_app/models"
 	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
 	"github.com/labstack/echo"
@@ -273,7 +274,7 @@ func (i *IncomeProductHandler) ExportSummaryProductValue(c echo.Context) error {
 		switch err {
 		case models.ERR_DATE_PARSING:
 			return c.JSON(http.StatusBadRequest, &ResponseError{
-				Message: "Error parsing date on attribute dateFormatted, `yyyy/MM/dd HH:mm` required",
+				Message: "Error parsing date on attribute dateFormatted, `yyyy/MM/dd HH:mm` format required",
 			})
 		case models.ERR_RECORD_DB:
 			return c.JSON(http.StatusInternalServerError, &ResponseError{
@@ -300,6 +301,88 @@ func (i *IncomeProductHandler) ExportSummaryProductValue(c echo.Context) error {
 	return c.Attachment(f.Name(), "laporan_nilai_barang.csv")
 }
 
+func (i *IncomeProductHandler) MigrateDataFromCSV(c echo.Context) error {
+	data := make([]models.IncomingProduct, 0)
+	file, err := c.FormFile("file")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "File csv is required",
+		})
+	}
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Failed to open file csv",
+		})
+	}
+	defer src.Close()
+
+	if filepath.Ext(file.Filename) != ".csv" {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid file type, type `csv` type required",
+		})
+	}
+
+	lines, err := csv.NewReader(src).ReadAll()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Broken file detected, cannot read data from csv file",
+		})
+	}
+	var total int64
+	var totalOrder int64
+	var buyPrice float64
+
+	for i, val := range lines {
+		if i == 0 {
+			continue
+		}
+		totalOrder, err = helper.StringToInt64(val[3])
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Attribute totalOrder not support.",
+			})
+		}
+		total, err = helper.StringToInt64(val[4])
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Attribute total not support.",
+			})
+		}
+		buyPrice, err = helper.StringToFloat64(val[5])
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Attribute buyPrice not support.",
+			})
+		}
+
+		ip := &models.IncomingProduct{
+			DateFormatted: val[0],
+			ProductSKU:    val[1],
+			Total:         total,
+			TotalOrder:    totalOrder,
+			BuyPrice:      buyPrice,
+			NumberReceipt: val[7],
+			Note:          val[8],
+		}
+		data = append(data, *ip)
+	}
+
+	err = i.IncProductUC.BatchInsert(data)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, &ResponseError{
+			Message: "Internal server error",
+		})
+	}
+	msg := struct {
+		Message string
+	}{
+		Message: "Data imported",
+	}
+	return c.JSON(http.StatusOK, msg)
+
+}
+
 func isRequestValid(m *models.IncomingProduct) (bool, error) {
 	validate := validator.New()
 
@@ -322,4 +405,5 @@ func NewIncomeProductHandler(e *echo.Echo, uip incomeProductModule.IncomeProduct
 	e.DELETE("/income-product/:id", handler.Delete)
 	e.GET("/income-product/product-value", handler.GetSummaryProductValue)
 	e.GET("/income-product/product-value/export", handler.ExportSummaryProductValue)
+	e.POST("/income-product/migration", handler.MigrateDataFromCSV)
 }

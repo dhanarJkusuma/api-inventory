@@ -10,6 +10,11 @@ Execute command :
 ```
 if it doesn't work, try to put this app directory to the $GOPATH/src directory
 
+If you want to rebuild this app, you can run this command :
+```
+./bin/install.sh
+```
+
 ## Documentation
 Documentation api using swagger.json/swagger.yaml in the root directory of this app.
 

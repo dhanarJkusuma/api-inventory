@@ -77,3 +77,21 @@ func (u *productUsecase) DeleteProductBySKU(sku string) error {
 	}
 	return nil
 }
+
+func (u *productUsecase) BatchInsert(ps []models.Product) error {
+	for _, val := range ps {
+		err := u.CreateNewProductSilent(&val)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (u *productUsecase) CreateNewProductSilent(p *models.Product) error {
+	_, err := u.Repo.CreateNewProduct(p)
+	if err != nil {
+		return err
+	}
+	return nil
+}

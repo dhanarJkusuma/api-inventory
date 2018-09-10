@@ -1,9 +1,12 @@
 package http
 
 import (
+	"encoding/csv"
 	"net/http"
+	"path/filepath"
 	"strconv"
 
+	"inventory_app/helper"
 	"inventory_app/models"
 	productModule "inventory_app/product"
 
@@ -228,6 +231,70 @@ func (p *ProductHandler) DeleteBySKU(c echo.Context) error {
 	return c.JSON(http.StatusOK, msg)
 }
 
+func (p *ProductHandler) MigrateDataFromCSV(c echo.Context) error {
+	data := make([]models.Product, 0)
+	file, err := c.FormFile("file")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "File csv is required",
+		})
+	}
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Failed to open file csv",
+		})
+	}
+	defer src.Close()
+
+	if filepath.Ext(file.Filename) != ".csv" {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid file type, type `csv` type required",
+		})
+	}
+
+	lines, err := csv.NewReader(src).ReadAll()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Broken file detected, cannot read data from csv file",
+		})
+	}
+	var total int64
+
+	for i, val := range lines {
+		if i == 0 {
+			continue
+		}
+		total, err = helper.StringToInt64(val[2])
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Attribute total not support.",
+			})
+		}
+
+		ip := &models.Product{
+			Sku:   val[0],
+			Name:  val[1],
+			Total: total,
+		}
+		data = append(data, *ip)
+	}
+
+	err = p.ProductUC.BatchInsert(data)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, &ResponseError{
+			Message: "Internal server error",
+		})
+	}
+	msg := struct {
+		Message string
+	}{
+		Message: "Data imported",
+	}
+	return c.JSON(http.StatusOK, msg)
+
+}
+
 func isRequestValid(m *models.Product) (bool, error) {
 	validate := validator.New()
 
@@ -251,5 +318,6 @@ func NewProductHandler(e *echo.Echo, up productModule.ProductUsecase) {
 	e.GET("/product/sku/:sku", handler.GetDetailBySKU)
 	e.PUT("/product/sku/:sku", handler.UpdateBySKU)
 	e.DELETE("/product/sku/:sku", handler.DeleteBySKU)
+	e.POST("/product/migration", handler.MigrateDataFromCSV)
 
 }

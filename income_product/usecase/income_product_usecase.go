@@ -149,3 +149,40 @@ func (u *incomeProductUsecase) GetSummaryProductValue(from string, page int, siz
 
 	return results, nil
 }
+
+func (u *incomeProductUsecase) CreateNewIncomeProductSilent(ip *models.IncomingProduct) error {
+	p, err := u.ProductRepo.GetDetailProductBySKU(ip.ProductSKU)
+	if err != nil {
+		return err
+	}
+	ip.ProductID = p.ID
+	ip.ProductSKU = p.Sku
+	ip.Product = *p
+
+	// check date
+	parsedDate, err := time.Parse("2006-01-02 15:04:05", ip.DateFormatted)
+	if err != nil {
+		return err
+	}
+	ip.Date = parsedDate
+
+	_, err = u.IncomeProductRepo.CreateNewIncomeProduct(ip)
+	if err != nil {
+		return err
+	}
+	// update stock
+	p.Total += ip.Total
+	u.ProductRepo.UpdateProduct(p.ID, *p)
+	ip.Product = *p
+	return nil
+}
+
+func (u *incomeProductUsecase) BatchInsert(ops []models.IncomingProduct) error {
+	for _, val := range ops {
+		err := u.CreateNewIncomeProductSilent(&val)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

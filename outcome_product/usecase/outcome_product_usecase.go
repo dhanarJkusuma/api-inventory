@@ -125,7 +125,7 @@ func (ou *outcomeProductUsecase) DeleteOutcomeProduct(id int64) error {
 	return nil
 }
 
-func (ou *outcomeProductUsecase) GetSalesReport(startDate string, endDate string, page int, size int) ([]models.Sales, error) {
+func (ou *outcomeProductUsecase) GetSalesReport(startDate string, endDate string, page int, size int) (*models.SummarySales, error) {
 	if startDate == "" {
 		startDate = "1980-01-01"
 	}
@@ -145,4 +145,40 @@ func (ou *outcomeProductUsecase) GetSalesReport(startDate string, endDate string
 		return nil, err
 	}
 	return results, nil
+}
+
+func (ou *outcomeProductUsecase) CreateNewOutcomeProductSilent(op *models.OutcomingProduct) error {
+	p, err := ou.ProductRepo.GetDetailProductBySKU(op.ProductSKU)
+	if err != nil {
+		return err
+	}
+	op.ProductID = p.ID
+	op.ProductSKU = p.Sku
+	op.Product = *p
+
+	// check date
+	parsedDate, err := time.Parse("2006-01-02 15:04:05", op.DateFormatted)
+	if err != nil {
+		return err
+	}
+	op.Date = parsedDate
+
+	outcomeProduct, err := ou.OutcomeProductRepo.CreateNewOutcomeProduct(op)
+	if err != nil {
+		return err
+	}
+	// update stock
+	p.Total -= op.Total
+	ou.ProductRepo.UpdateProduct(p.ID, *p)
+	outcomeProduct.Product = *p
+	return nil
+}
+func (ou *outcomeProductUsecase) BatchInsert(ops []models.OutcomingProduct) error {
+	for _, val := range ops {
+		err := ou.CreateNewOutcomeProductSilent(&val)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

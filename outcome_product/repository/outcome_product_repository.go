@@ -82,8 +82,7 @@ func (or *outcomeProductRepository) DeleteOutcomeProduct(id int64) error {
 	return nil
 }
 
-func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate string, page int, size int) ([]models.Sales, error) {
-
+func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate string, page int, size int) (*models.SummarySales, error) {
 	queryBuyPriceProduct := `
 	SELECT 
 		incoming_products.product_id AS product_id,
@@ -121,6 +120,11 @@ func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate str
 		date(outcoming_products.date) >= ? AND date(outcoming_products.date) <= ?
 	ORDER BY outcoming_products.date DESC
 	LIMIT ? OFFSET ?`
+
+	var omzet float64 = 0
+	var gross float64 = 0
+	var totalItemSold int64 = 0
+
 	offset := page * size
 	records := make([]models.Sales, 0)
 	rows, err := or.DB.Raw(querySales, startDate, endDate, startDate, endDate, size, offset).Rows()
@@ -136,9 +140,17 @@ func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate str
 			fmt.Println(err)
 			return nil, err
 		}
+		omzet += sales.TotalAmount
+		gross += sales.Profit
+		totalItemSold += sales.Total
 		records = append(records, sales)
 	}
-
-	return records, nil
+	result := &models.SummarySales{
+		Omzet:         omzet,
+		GrossProfit:   gross,
+		TotalItemSold: totalItemSold,
+		Records:       records,
+	}
+	return result, nil
 
 }
