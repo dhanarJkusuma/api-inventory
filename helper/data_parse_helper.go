@@ -32,5 +32,8 @@ func StringToFloat64(s string) (float64, error) {
 
 func GetOrderIDByOutcomingProductNote(note string) string {
 	raw := strings.Split(note, " ")
-	return raw[0]
+	if len(raw) > 1 {
+		return raw[1]
+	}
+	return ""
 }
