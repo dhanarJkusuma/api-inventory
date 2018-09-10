@@ -8,7 +8,7 @@ Execute command :
 ```
 ./start.sh
 ```
-if it doesn't work, try to put this app to the $GOPATH directory
+if it doesn't work, try to put this app directory to the $GOPATH/src directory
 
 ## Documentation
 Documentation api using swagger.json/swagger.yaml in the root directory of this app.
