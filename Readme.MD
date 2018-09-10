@@ -14,6 +14,8 @@ If you want to rebuild this app, you can run this command :
 ```
 ./bin/install.sh
 ```
+For migration, use form-data with attribute-name `file` and type `file`
+
 
 ## Documentation
 Documentation api using swagger.json/swagger.yaml in the root directory of this app.
