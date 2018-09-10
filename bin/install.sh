@@ -14,10 +14,25 @@ fi
 cdCmd="cd $DIR/../"
 eval $cdCmd
 
+# Change to Directory DB
+eval "cd db"
+if [ -f "app.db" ]
+then
+	eval "rm app.db"
+fi
+
+eval "touch app.db"
+
+
+# Change Directory App
+cdCmd="cd $DIR/../"
+eval $cdCmd
+
+
+
 echo "[Inventory App] Build App"
 # Build/Compile
 buildCmd="go build -o $DIR/app ."
 eval $buildCmd > $DIR/build.log
 
-eval "cd $DIR"
-eval "./app"
+eval "./start.sh"

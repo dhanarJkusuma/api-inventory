@@ -19,8 +19,6 @@ import (
 	prHttp "inventory_app/product/delivery/http"
 	prRepo "inventory_app/product/repository"
 	prUsecase "inventory_app/product/usecase"
-
-	trxHttp "inventory_app/transaction/delivery/http"
 )
 
 func init() {
@@ -62,8 +60,6 @@ func main() {
 	opr := oprRepo.NewOutcomeProductRepository(db)
 	opu := oprUsecase.NewOutcomeProductUsecase(pr, opr)
 	oucPrHttp.NewOutcomeProductHandler(e, opu)
-
-	trxHttp.NewTransactionHandler(e)
 
 	fmt.Println("[Inventory App] Application Starting")
 	e.Logger.Fatal(e.Start(":8080"))
