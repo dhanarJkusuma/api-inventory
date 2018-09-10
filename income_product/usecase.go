@@ -11,4 +11,5 @@ type IncomeProductUsecase interface {
 	GetDetailIncomeProductByNoReceipt(no string) (*models.IncomingProduct, error)
 	UpdateIncomeProduct(id int64, p *models.IncomingProduct) (*models.IncomingProduct, error)
 	DeleteIncomeProduct(id int64) error
+	GetSummaryProductValue(from string, page int, size int) ([]models.ProductValue, error)
 }

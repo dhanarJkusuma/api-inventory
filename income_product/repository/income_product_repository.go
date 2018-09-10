@@ -91,3 +91,34 @@ func (i *incomeProductRepository) DeleteIncomeProduct(id int64) error {
 	}
 	return nil
 }
+
+func (i *incomeProductRepository) GetSummaryProductValue(date time.Time, page int, size int) ([]models.ProductValue, error) {
+	var results []models.ProductValue
+
+	querySelect := "incoming_products.product_id AS product_id, "
+	querySelect += "products.sku AS product_sku, "
+	querySelect += "products.name AS product_name, "
+	querySelect += "sum(incoming_products.total) as total, "
+	querySelect += "round(sum(incoming_products.buy_price * incoming_products.total), 0) AS total_buy_price, "
+	querySelect += "round((sum(incoming_products.buy_price * incoming_products.total) * 1.0) / (sum(incoming_products.total)), 0) AS avg_buy_price,"
+	querySelect += "round((sum(incoming_products.total) * 1.0) * (sum(incoming_products.buy_price * incoming_products.total) * 1.0) / (sum(incoming_products.total)), 0) AS total_amount, "
+	querySelect += "incoming_products.date as date"
+
+	queryJoin := "join products "
+	queryJoin += "on products.id = incoming_products.product_id"
+
+	groupingBy := "incoming_products.product_id, products.sku"
+
+	havingAttribute := "date(incoming_products.date) >= ?"
+	havingValue := date
+
+	offset := page * size
+
+	err := i.DB.Table("incoming_products").Select(querySelect).Joins(queryJoin).Group(groupingBy).Having(havingAttribute, havingValue).Offset(offset).Limit(size).Scan(&results).Error
+	if err != nil {
+		fmt.Println(err)
+		return []models.ProductValue{}, models.ERR_RECORD_DB
+	}
+
+	return results, nil
+}

@@ -17,7 +17,5 @@ type OutcomingProduct struct {
 	Date          time.Time `json:"date"`
 	LastUpdated   time.Time `json:"lastUpdated"`
 	InsertedAt    time.Time `json:"insertedAt"`
-	Order         int       `json:"-"`
 	OrderID       string    `json:"orderId"`
-	IsOrder       bool      `gorm:"-" json:"isOrder"`
 }

@@ -166,6 +166,47 @@ func (o *OutcomeProductHandler) Delete(c echo.Context) error {
 	return c.JSON(http.StatusOK, msg)
 }
 
+func (o *OutcomeProductHandler) GetSalesReport(c echo.Context) error {
+	var page, size string
+	var pg, sz int
+	var err error
+
+	start := c.QueryParam("start")
+	end := c.QueryParam("end")
+	if page = c.QueryParam("page"); page == "" {
+		page = "0"
+	}
+	if size = c.QueryParam("size"); size == "" {
+		size = "15"
+	}
+
+	if pg, err = strconv.Atoi(page); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+
+	if sz, err = strconv.Atoi(size); err != nil {
+		return c.JSON(http.StatusBadRequest, &ResponseError{
+			Message: "Invalid pagination request value",
+		})
+	}
+	results, err := o.OutProductUC.GetSalesReport(start, end, pg, sz)
+	if err != nil {
+		switch err {
+		case models.ERR_DATE_PARSING:
+			return c.JSON(http.StatusBadRequest, &ResponseError{
+				Message: "Error parsing date on query start or end, `yyyy-MM-dd` required",
+			})
+		case models.ERR_RECORD_DB:
+			return c.JSON(http.StatusInternalServerError, &ResponseError{
+				Message: "Internal server error",
+			})
+		}
+	}
+	return c.JSON(http.StatusOK, results)
+}
+
 func (o *OutcomeProductHandler) Ping(c echo.Context) error {
 	response := struct {
 		Message string
@@ -186,4 +227,5 @@ func NewOutcomeProductHandler(e *echo.Echo, uop outcomeProductModule.OutcomeProd
 	e.GET("/outcome-product/:id", handler.GetDetail)
 	e.PUT("/outcome-product/:id", handler.Update)
 	e.DELETE("/outcome-product/:id", handler.Delete)
+	e.GET("/outcome-product/sales", handler.GetSalesReport)
 }

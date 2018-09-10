@@ -131,3 +131,21 @@ func (u *incomeProductUsecase) DeleteIncomeProduct(id int64) error {
 
 	return nil
 }
+
+func (u *incomeProductUsecase) GetSummaryProductValue(from string, page int, size int) ([]models.ProductValue, error) {
+	if from == "" {
+		from = "1980-01-01"
+	}
+	// check date
+	parsedDate, err := time.Parse("2006-01-02", from)
+	if err != nil {
+		return nil, models.ERR_DATE_PARSING
+	}
+
+	results, err := u.IncomeProductRepo.GetSummaryProductValue(parsedDate, page, size)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}

@@ -11,12 +11,15 @@ import (
 	incPrHttp "inventory_app/income_product/delivery/http"
 	iprRepo "inventory_app/income_product/repository"
 	iprUsecase "inventory_app/income_product/usecase"
+
 	oucPrHttp "inventory_app/outcome_product/delivery/http"
 	oprRepo "inventory_app/outcome_product/repository"
 	oprUsecase "inventory_app/outcome_product/usecase"
+
 	prHttp "inventory_app/product/delivery/http"
 	prRepo "inventory_app/product/repository"
 	prUsecase "inventory_app/product/usecase"
+
 	trxHttp "inventory_app/transaction/delivery/http"
 )
 

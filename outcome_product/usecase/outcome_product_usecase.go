@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"inventory_app/helper"
 	"inventory_app/models"
 	"inventory_app/outcome_product"
 	"inventory_app/product"
@@ -28,13 +29,6 @@ func (ou *outcomeProductUsecase) CreateNewOutcomeProduct(op *models.OutcomingPro
 	op.ProductSKU = p.Sku
 	op.Product = *p
 
-	// check type order
-	if op.IsOrder {
-		op.Order = 1
-	} else {
-		op.Order = 0
-		op.OrderID = ""
-	}
 	// check date
 	parsedDate, err := time.Parse("2006-01-02 15:04:05", op.DateFormatted)
 	if err != nil {
@@ -85,14 +79,6 @@ func (ou *outcomeProductUsecase) UpdateOutcomeProduct(id int64, op *models.Outco
 	op.ProductSKU = p.Sku
 	op.Product = *p
 
-	// check type order
-	if op.IsOrder {
-		op.Order = 1
-	} else {
-		op.Order = 0
-		op.OrderID = ""
-	}
-
 	// check date
 	parsedDate, err := time.Parse("2006-01-02 15:04:05", op.DateFormatted)
 	if err != nil {
@@ -137,4 +123,26 @@ func (ou *outcomeProductUsecase) DeleteOutcomeProduct(id int64) error {
 	ou.ProductRepo.UpdateProduct(oldData.Product.ID, oldData.Product)
 
 	return nil
+}
+
+func (ou *outcomeProductUsecase) GetSalesReport(startDate string, endDate string, page int, size int) ([]models.Sales, error) {
+	if startDate == "" {
+		startDate = "1980-01-01"
+	}
+	if endDate == "" {
+		endDate = helper.GetCurrentDateWithFormat("2006-01-02")
+	}
+	err := helper.IsCorrectFormat("2006-01-02", startDate)
+	if err != nil {
+		return nil, err
+	}
+	err = helper.IsCorrectFormat("2006-01-02", endDate)
+	if err != nil {
+		return nil, err
+	}
+	results, err := ou.OutcomeProductRepo.GetSalesReport(startDate, endDate, page, size)
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
 }
