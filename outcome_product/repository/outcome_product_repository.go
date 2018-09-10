@@ -121,7 +121,6 @@ func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate str
 		date(outcoming_products.date) >= ? AND date(outcoming_products.date) <= ?
 	ORDER BY outcoming_products.date DESC
 	LIMIT ? OFFSET ?`
-	fmt.Println(size)
 	offset := page * size
 	records := make([]models.Sales, 0)
 	rows, err := or.DB.Raw(querySales, startDate, endDate, startDate, endDate, size, offset).Rows()
@@ -131,7 +130,6 @@ func (or *outcomeProductRepository) GetSalesReport(startDate string, endDate str
 		return nil, models.ERR_RECORD_DB
 	}
 	for rows.Next() {
-		fmt.Println("hi")
 		var sales models.Sales
 		err := rows.Scan(&sales.OrderID, &sales.Date, &sales.ProductSKU, &sales.ProductName, &sales.Total, &sales.SellPrice, &sales.TotalAmount, &sales.BuyPrice, &sales.Profit)
 		if err != nil {

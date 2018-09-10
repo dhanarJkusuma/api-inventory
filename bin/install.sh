@@ -28,7 +28,9 @@ eval "touch app.db"
 cdCmd="cd $DIR/../"
 eval $cdCmd
 
-
+# Downloading Dependency
+echo "[Inventory App] Resolving Dependency"
+eval "go get -v"
 
 echo "[Inventory App] Build App"
 # Build/Compile
